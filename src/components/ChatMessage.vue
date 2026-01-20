@@ -17,13 +17,6 @@
       </div>
       <div v-if="!message.isTyping" class="message-meta">
         <span>{{ message.timestamp }}</span>
-        <button
-          v-if="message.type === 'bot' && message.sourceCount > 0"
-          class="source-btn"
-          @click="$emit('showSources', message.sourceIndex)"
-        >
-          Lihat Sumber ({{ message.sourceCount }})
-        </button>
       </div>
     </div>
   </div>
@@ -36,6 +29,4 @@ defineProps({
     required: true,
   },
 })
-
-defineEmits(['showSources'])
 </script>

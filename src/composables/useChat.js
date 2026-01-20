@@ -7,9 +7,6 @@ export function useChat() {
   const isTyping = ref(false)
   const status = ref('warning')
   const statusText = ref('Mengecek koneksi...')
-  const currentSources = ref([])
-  const showModal = ref(false)
-  const modalSources = ref([])
 
   let healthCheckInterval = null
   let typingInterval = null
@@ -34,7 +31,7 @@ export function useChat() {
     }
   }
 
-  function typeText(messageId, fullText, sources, sourceIndex) {
+  function typeText(messageId, fullText) {
     return new Promise((resolve) => {
       let charIndex = 0
       const typingSpeed = 15 // ms per character
@@ -58,8 +55,6 @@ export function useChat() {
           const msg = messages.value.find(m => m.id === messageId)
           if (msg) {
             msg.isTyping = false
-            msg.sourceIndex = sourceIndex
-            msg.sourceCount = sources?.length || 0
           }
 
           isTyping.value = false
@@ -85,13 +80,6 @@ export function useChat() {
     try {
       const data = await apiSendMessage(message)
 
-      // Store sources if any
-      let sourceIndex = null
-      if (data.sources && data.sources.length > 0) {
-        sourceIndex = currentSources.value.length
-        currentSources.value.push(data.sources)
-      }
-
       isLoading.value = false
 
       // Add bot message with empty text (will be typed)
@@ -102,12 +90,10 @@ export function useChat() {
         type: 'bot',
         timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
         isTyping: true,
-        sourceIndex: null,
-        sourceCount: 0,
       })
 
       // Type the response character by character
-      await typeText(botMessageId, data.response, data.sources, sourceIndex)
+      await typeText(botMessageId, data.response)
 
     } catch (error) {
       isLoading.value = false
@@ -124,18 +110,6 @@ export function useChat() {
 
   function askQuestion(question) {
     sendMessage(question)
-  }
-
-  function showSources(index) {
-    if (index !== null && currentSources.value[index]) {
-      modalSources.value = currentSources.value[index]
-      showModal.value = true
-    }
-  }
-
-  function closeModal() {
-    showModal.value = false
-    modalSources.value = []
   }
 
   onMounted(() => {
@@ -158,12 +132,8 @@ export function useChat() {
     isTyping,
     status,
     statusText,
-    showModal,
-    modalSources,
     sendMessage,
     askQuestion,
-    showSources,
-    closeModal,
     checkHealth,
   }
 }

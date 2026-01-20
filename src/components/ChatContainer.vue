@@ -9,7 +9,6 @@
         v-for="msg in messages"
         :key="msg.id"
         :message="msg"
-        @show-sources="$emit('showSources', $event)"
       />
     </template>
     <TypingIndicator v-if="isLoading" />
@@ -37,7 +36,7 @@ const props = defineProps({
   },
 })
 
-defineEmits(['askQuestion', 'showSources'])
+defineEmits(['askQuestion'])
 
 const containerRef = ref(null)
 
