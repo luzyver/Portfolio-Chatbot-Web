@@ -6,7 +6,7 @@
           ref="inputRef"
           v-model="message"
           type="text"
-          placeholder="Ketik pertanyaan Anda..."
+          placeholder="ketik pertanyaan..."
           autocomplete="off"
           :disabled="disabled"
         >
@@ -17,7 +17,7 @@
         </button>
       </div>
     </form>
-    <p class="disclaimer">Chatbot menjawab berdasarkan data portfolio yang tersedia</p>
+    <p class="disclaimer">jawaban berdasarkan data portfolio yang tersedia</p>
   </footer>
 </template>
 

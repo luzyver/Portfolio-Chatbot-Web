@@ -6,7 +6,7 @@ export function useChat() {
   const isLoading = ref(false)
   const isTyping = ref(false)
   const status = ref('warning')
-  const statusText = ref('Mengecek koneksi...')
+  const statusText = ref('MENGECEK...')
 
   let healthCheckInterval = null
   let typingInterval = null
@@ -17,17 +17,17 @@ export function useChat() {
 
       if (data.status === 'healthy') {
         status.value = 'online'
-        statusText.value = 'Online'
+        statusText.value = 'TERHUBUNG'
       } else if (data.status === 'degraded') {
         status.value = 'warning'
-        statusText.value = `Degraded - Groq: ${data.groq_status}`
+        statusText.value = `TERGANGGU - API: ${data.groq_status.toUpperCase()}`
       } else {
         status.value = 'offline'
-        statusText.value = 'Offline'
+        statusText.value = 'TERPUTUS'
       }
     } catch (error) {
       status.value = 'offline'
-      statusText.value = 'Tidak dapat terhubung ke server'
+      statusText.value = 'GAGAL TERHUBUNG'
     }
   }
 
