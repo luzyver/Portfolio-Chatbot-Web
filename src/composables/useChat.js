@@ -36,7 +36,7 @@ export function useChat() {
   function typeText(messageId, fullText) {
     return new Promise((resolve) => {
       let charIndex = 0
-      const typingSpeed = 50
+      const typingSpeed = 25
 
       isTyping.value = true
 
