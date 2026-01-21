@@ -64,10 +64,22 @@ export function useChat() {
     })
   }
 
+  function getHistoryForAPI() {
+    const validMessages = messages.value.filter(msg => msg.type === 'user' || msg.type === 'bot')
+    if (validMessages.length < 2) return null
+
+    const lastTwo = validMessages.slice(-2)
+    return lastTwo.map(msg => ({
+      role: msg.type === 'user' ? 'user' : 'assistant',
+      content: msg.text
+    }))
+  }
+
   async function sendMessage(message) {
     if (!message.trim() || isLoading.value || isTyping.value) return
 
-    // Add user message
+    const history = getHistoryForAPI()
+
     messages.value.push({
       id: Date.now(),
       text: message,
@@ -78,7 +90,7 @@ export function useChat() {
     isLoading.value = true
 
     try {
-      const data = await apiSendMessage(message)
+      const data = await apiSendMessage(message, history)
 
       isLoading.value = false
 

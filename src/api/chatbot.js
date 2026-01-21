@@ -5,13 +5,18 @@ export async function checkHealth() {
   return response.json()
 }
 
-export async function sendMessage(message) {
+export async function sendMessage(message, history = null) {
+  const body = { message }
+  if (history && history.length > 0) {
+    body.history = history
+  }
+
   const response = await fetch(`${API_BASE_URL}/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify(body),
   })
 
   if (!response.ok) {
