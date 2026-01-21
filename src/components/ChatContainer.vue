@@ -46,17 +46,14 @@ function scrollToBottom() {
   }
 }
 
-// Scroll when messages change
 watch(() => props.messages.length, () => {
   nextTick(scrollToBottom)
 })
 
-// Scroll when loading state changes
 watch(() => props.isLoading, () => {
   nextTick(scrollToBottom)
 })
 
-// Scroll during typing animation (deep watch on messages)
 watch(
   () => props.messages.map(m => m.text),
   () => {

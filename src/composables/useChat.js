@@ -11,6 +11,8 @@ export function useChat() {
   let healthCheckInterval = null
   let typingInterval = null
 
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
   async function checkHealth() {
     try {
       const data = await apiCheckHealth()
@@ -34,13 +36,12 @@ export function useChat() {
   function typeText(messageId, fullText) {
     return new Promise((resolve) => {
       let charIndex = 0
-      const typingSpeed = 15 // ms per character
+      const typingSpeed = 50
 
       isTyping.value = true
 
       typingInterval = setInterval(() => {
         if (charIndex < fullText.length) {
-          // Find the message and update its text
           const msg = messages.value.find(m => m.id === messageId)
           if (msg) {
             msg.text = fullText.slice(0, charIndex + 1)
@@ -48,7 +49,6 @@ export function useChat() {
           }
           charIndex++
         } else {
-          // Typing complete
           clearInterval(typingInterval)
           typingInterval = null
 
@@ -92,9 +92,10 @@ export function useChat() {
     try {
       const data = await apiSendMessage(message, history)
 
+      await delay(3000)
+
       isLoading.value = false
 
-      // Add bot message with empty text (will be typed)
       const botMessageId = Date.now() + 1
       messages.value.push({
         id: botMessageId,
@@ -104,13 +105,11 @@ export function useChat() {
         isTyping: true,
       })
 
-      // Type the response character by character
       await typeText(botMessageId, data.response)
 
     } catch (error) {
       isLoading.value = false
 
-      // Add error message
       messages.value.push({
         id: Date.now() + 1,
         text: error.message || 'Gagal menghubungi server. Pastikan backend sudah berjalan.',
