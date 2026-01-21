@@ -1,7 +1,5 @@
-export const API_BASE_URL = 'https://chatbot-api.luzyver.dev'
-
 export async function checkHealth() {
-  const response = await fetch(`${API_BASE_URL}/health`)
+  const response = await fetch('/api/health')
   return response.json()
 }
 
@@ -11,7 +9,7 @@ export async function sendMessage(message, history = null) {
     body.history = history
   }
 
-  const response = await fetch(`${API_BASE_URL}/chat`, {
+  const response = await fetch('/api/chat', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
