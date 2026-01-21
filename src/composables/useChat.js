@@ -125,7 +125,7 @@ export function useChat() {
 
   onMounted(() => {
     checkHealth()
-    healthCheckInterval = setInterval(checkHealth, 30000)
+    healthCheckInterval = setInterval(checkHealth, 300000)
   })
 
   onUnmounted(() => {
