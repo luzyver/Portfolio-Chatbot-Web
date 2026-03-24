@@ -14,8 +14,8 @@ export async function onRequestGet() {
   } catch (error) {
     return new Response(JSON.stringify({
       status: 'unhealthy',
-      groq_status: 'unknown',
-      vector_store_status: 'unknown'
+      portfolio_status: 'unknown',
+      chat_mode: 'structured'
     }), {
       status: 500,
       headers: {

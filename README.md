@@ -24,7 +24,6 @@ Frontend/
 │   │   ├── ChatHeader.vue
 │   │   ├── ChatInput.vue
 │   │   ├── ChatMessage.vue
-│   │   ├── SourceModal.vue
 │   │   ├── TypingIndicator.vue
 │   │   └── WelcomeMessage.vue
 │   ├── composables/

@@ -99,7 +99,7 @@ export function useChat() {
         statusText.value = 'TERHUBUNG'
       } else if (data.status === 'degraded') {
         status.value = 'warning'
-        statusText.value = `TERGANGGU - API: ${data.groq_status.toUpperCase()}`
+        statusText.value = data.portfolio_status === 'empty' ? 'DATA BELUM SIAP' : 'TERGANGGU'
       } else {
         status.value = 'offline'
         statusText.value = 'TERPUTUS'
