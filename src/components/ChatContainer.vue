@@ -2,6 +2,7 @@
   <main ref="containerRef" class="chat-container">
     <WelcomeMessage
       v-if="messages.length === 0"
+      :locale="locale"
       @ask-question="$emit('askQuestion', $event)"
     />
     <template v-else>
@@ -33,6 +34,10 @@ const props = defineProps({
   isTyping: {
     type: Boolean,
     default: false,
+  },
+  locale: {
+    type: String,
+    default: 'id',
   },
 })
 

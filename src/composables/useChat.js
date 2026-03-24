@@ -1,39 +1,93 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { checkHealth as apiCheckHealth, sendMessage as apiSendMessage } from '../api/chatbot'
 
+const LOCALE_STORAGE_KEY = 'chatbot_locale'
+
 export function useChat() {
   const messages = ref([])
   const isLoading = ref(false)
   const isTyping = ref(false)
   const status = ref('warning')
   const statusText = ref('MENGECEK...')
+  const activeLocale = ref('id')
 
   let healthCheckInterval = null
   let typingInterval = null
 
   const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
+  function normalizeLocale(locale) {
+    return locale?.toLowerCase().startsWith('en') ? 'en' : 'id'
+  }
+
+  function syncDocumentLocale(locale) {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = locale
+    }
+  }
+
+  function persistLocale(locale) {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, locale)
+    }
+  }
+
+  function setActiveLocale(locale, { persist = true } = {}) {
+    const normalizedLocale = normalizeLocale(locale)
+    activeLocale.value = normalizedLocale
+    syncDocumentLocale(normalizedLocale)
+
+    if (persist) {
+      persistLocale(normalizedLocale)
+    }
+  }
+
   function resolveLocale() {
+    if (typeof window !== 'undefined') {
+      const queryLocale = new URLSearchParams(window.location.search).get('locale')
+      if (queryLocale) {
+        return normalizeLocale(queryLocale)
+      }
+
+      const storedLocale = window.localStorage.getItem(LOCALE_STORAGE_KEY)
+      if (storedLocale) {
+        return normalizeLocale(storedLocale)
+      }
+    }
+
     if (typeof document !== 'undefined') {
       const documentLang = document.documentElement?.lang?.trim()
       if (documentLang) {
-        return documentLang.toLowerCase().startsWith('en') ? 'en' : 'id'
+        return normalizeLocale(documentLang)
       }
     }
 
     if (typeof navigator !== 'undefined' && navigator.language) {
-      return navigator.language.toLowerCase().startsWith('en') ? 'en' : 'id'
+      return normalizeLocale(navigator.language)
     }
 
     return 'id'
   }
 
   function formatTimestamp() {
-    const locale = resolveLocale()
-    return new Date().toLocaleTimeString(locale === 'en' ? 'en-US' : 'id-ID', {
+    return new Date().toLocaleTimeString(activeLocale.value === 'en' ? 'en-US' : 'id-ID', {
       hour: '2-digit',
       minute: '2-digit',
     })
+  }
+
+  function handleLocaleMessage(event) {
+    const payload = event?.data
+    if (!payload) return
+
+    if (typeof payload === 'string' && (payload === 'id' || payload === 'en')) {
+      setActiveLocale(payload)
+      return
+    }
+
+    if (payload.type === 'set-locale' && payload.locale) {
+      setActiveLocale(payload.locale)
+    }
   }
 
   async function checkHealth() {
@@ -101,7 +155,7 @@ export function useChat() {
   async function sendMessage(message) {
     if (!message.trim() || isLoading.value || isTyping.value) return
 
-    const locale = resolveLocale()
+    const locale = activeLocale.value
     const history = getHistoryForAPI()
 
     messages.value.push({
@@ -148,8 +202,10 @@ export function useChat() {
   }
 
   onMounted(() => {
+    setActiveLocale(resolveLocale(), { persist: false })
     checkHealth()
     healthCheckInterval = setInterval(checkHealth, 300000)
+    window.addEventListener('message', handleLocaleMessage)
   })
 
   onUnmounted(() => {
@@ -159,9 +215,11 @@ export function useChat() {
     if (typingInterval) {
       clearInterval(typingInterval)
     }
+    window.removeEventListener('message', handleLocaleMessage)
   })
 
   return {
+    activeLocale,
     messages,
     isLoading,
     isTyping,

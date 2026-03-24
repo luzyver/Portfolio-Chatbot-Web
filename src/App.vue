@@ -5,6 +5,7 @@
       :messages="messages"
       :is-loading="isLoading"
       :is-typing="isTyping"
+      :locale="activeLocale"
       @ask-question="askQuestion"
     />
     <ChatInput :disabled="isLoading || isTyping" @send="sendMessage" />
@@ -18,6 +19,7 @@ import ChatContainer from './components/ChatContainer.vue'
 import ChatInput from './components/ChatInput.vue'
 
 const {
+  activeLocale,
   messages,
   isLoading,
   isTyping,
