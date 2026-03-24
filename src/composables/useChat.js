@@ -13,6 +13,29 @@ export function useChat() {
 
   const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
+  function resolveLocale() {
+    if (typeof document !== 'undefined') {
+      const documentLang = document.documentElement?.lang?.trim()
+      if (documentLang) {
+        return documentLang.toLowerCase().startsWith('en') ? 'en' : 'id'
+      }
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.language) {
+      return navigator.language.toLowerCase().startsWith('en') ? 'en' : 'id'
+    }
+
+    return 'id'
+  }
+
+  function formatTimestamp() {
+    const locale = resolveLocale()
+    return new Date().toLocaleTimeString(locale === 'en' ? 'en-US' : 'id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
   async function checkHealth() {
     try {
       const data = await apiCheckHealth()
@@ -78,19 +101,20 @@ export function useChat() {
   async function sendMessage(message) {
     if (!message.trim() || isLoading.value || isTyping.value) return
 
+    const locale = resolveLocale()
     const history = getHistoryForAPI()
 
     messages.value.push({
       id: Date.now(),
       text: message,
       type: 'user',
-      timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+      timestamp: formatTimestamp(),
     })
 
     isLoading.value = true
 
     try {
-      const data = await apiSendMessage(message, history)
+      const data = await apiSendMessage(message, history, locale)
 
       await delay(3000)
 
@@ -101,7 +125,7 @@ export function useChat() {
         id: botMessageId,
         text: '',
         type: 'bot',
-        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        timestamp: formatTimestamp(),
         isTyping: true,
       })
 
@@ -114,7 +138,7 @@ export function useChat() {
         id: Date.now() + 1,
         text: error.message || 'Gagal menghubungi server. Pastikan backend sudah berjalan.',
         type: 'error',
-        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        timestamp: formatTimestamp(),
       })
     }
   }

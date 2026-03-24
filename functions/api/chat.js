@@ -3,12 +3,22 @@ const API_URL = 'https://chatbot-api.luzyver.dev'
 export async function onRequestPost(context) {
   try {
     const body = await context.request.json()
+    const headers = {
+      'Content-Type': 'application/json',
+    }
+    const acceptLanguage = context.request.headers.get('Accept-Language')
+    const locale = context.request.headers.get('X-Locale')
+
+    if (acceptLanguage) {
+      headers['Accept-Language'] = acceptLanguage
+    }
+    if (locale) {
+      headers['X-Locale'] = locale
+    }
 
     const response = await fetch(`${API_URL}/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
     })
 
