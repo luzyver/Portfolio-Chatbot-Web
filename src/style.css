@@ -306,6 +306,25 @@ body {
     line-height: 1.6;
 }
 
+.message-paragraph + .message-paragraph {
+    margin-top: 0.75rem;
+}
+
+.message-list {
+    margin: 0.75rem 0 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.message-list:first-child {
+    margin-top: 0;
+}
+
+.message-list li {
+    padding-left: 0.1rem;
+}
+
 .message-meta {
     display: flex;
     align-items: center;

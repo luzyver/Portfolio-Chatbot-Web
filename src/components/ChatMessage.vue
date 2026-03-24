@@ -13,7 +13,22 @@
     </div>
     <div class="message-content">
       <div class="message-text">
-        {{ message.text }}<span v-if="message.isTyping" class="typing-cursor"></span>
+        <template v-if="message.type === 'bot'">
+          <template v-for="(block, index) in formattedBlocks" :key="index">
+            <p v-if="block.type === 'paragraph'" class="message-paragraph">
+              {{ block.content }}
+            </p>
+            <ul v-else-if="block.type === 'list'" class="message-list">
+              <li v-for="(item, itemIndex) in block.items" :key="itemIndex">
+                {{ item }}
+              </li>
+            </ul>
+          </template>
+        </template>
+        <template v-else>
+          {{ message.text }}
+        </template>
+        <span v-if="message.isTyping" class="typing-cursor"></span>
       </div>
       <div v-if="!message.isTyping" class="message-meta">
         <span>{{ message.timestamp }}</span>
@@ -23,10 +38,66 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   message: {
     type: Object,
     required: true,
   },
+})
+
+const formattedBlocks = computed(() => {
+  const text = props.message?.text ?? ''
+  if (!text) return []
+
+  const lines = text.split('\n')
+  const blocks = []
+  let paragraphBuffer = []
+  let listBuffer = []
+
+  function flushParagraph() {
+    if (paragraphBuffer.length > 0) {
+      blocks.push({
+        type: 'paragraph',
+        content: paragraphBuffer.join(' ').trim(),
+      })
+      paragraphBuffer = []
+    }
+  }
+
+  function flushList() {
+    if (listBuffer.length > 0) {
+      blocks.push({
+        type: 'list',
+        items: [...listBuffer],
+      })
+      listBuffer = []
+    }
+  }
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+
+    if (!trimmed) {
+      flushList()
+      flushParagraph()
+      continue
+    }
+
+    if (trimmed.startsWith('- ')) {
+      flushParagraph()
+      listBuffer.push(trimmed.slice(2).trim())
+      continue
+    }
+
+    flushList()
+    paragraphBuffer.push(trimmed)
+  }
+
+  flushList()
+  flushParagraph()
+
+  return blocks
 })
 </script>
